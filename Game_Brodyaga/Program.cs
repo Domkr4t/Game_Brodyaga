@@ -102,7 +102,6 @@ namespace Game_Brodyaga
         public static void Game(int mapNumber = 1, int difficult = 1)
         {
             Console.Title = "Бродилка";
-            bool isOpen = true;
             Console.CursorVisible = false;
             Console.WindowHeight = 30;
             Console.WindowWidth = 140;
@@ -111,11 +110,19 @@ namespace Game_Brodyaga
 
             Random rnd = new Random();
 
-            int userX = 0, userY = 0, score = 0, countOfX = rnd.Next(1, 11),
+            int userX = 0, 
+                userY = 0,
+                enemyX = 0,
+                enemyY = 0,
+                score = 0, 
+                countOfX = rnd.Next(1, 11),
                 startHealth = 3,
                 userHealth = 0,
                 startMana = 2,
-                userMana = 0;
+                userMana = 0,
+                moveEnemy = 0;
+
+            bool isWin = true;
 
             switch (difficult)
             {
@@ -132,7 +139,6 @@ namespace Game_Brodyaga
                     userMana = 0;
                     break;
             }
-            bool isWin = true;
 
             for (int i = 0; i < countOfX; i++)
             {
@@ -156,7 +162,15 @@ namespace Game_Brodyaga
                 userY = rnd.Next(1, map.GetLength(1));
             }
 
-            while (isOpen)
+            while (map[enemyX, enemyY] == '#')
+            {
+                enemyX = rnd.Next(1, map.GetLength(0));
+                enemyY = rnd.Next(1, map.GetLength(1));
+            }
+
+            
+
+            while (true)
             {
                 Console.SetCursorPosition(0, 0);
                 Console.WriteLine("Вы участвуете в игре вам необходимо собрать все клады (X) " +
@@ -194,8 +208,11 @@ namespace Game_Brodyaga
                 }
 
                 Console.SetCursorPosition(userY, userX + 5);
-                Console.ForegroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write('@');
+                Console.SetCursorPosition(enemyY, enemyX + 5);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write('&');
                 Console.ForegroundColor = ConsoleColor.White;
                 ConsoleKeyInfo key = Console.ReadKey();
                 switch (key.Key)
@@ -265,7 +282,25 @@ namespace Game_Brodyaga
                             else userHealth--;
                         }
                         break;
+                    
+                }
 
+                moveEnemy = rnd.Next(1, 5);
+
+                switch (moveEnemy)
+                {
+                    case 1: 
+                        if (map[enemyX - 1, enemyY] != '#') enemyX--;
+                        break;
+                    case 2: 
+                        if (map[enemyX + 1, enemyY] != '#') enemyX++;
+                        break;
+                    case 3: 
+                        if (map[enemyX, enemyY - 1] != '#') enemyY--;
+                        break;
+                    case 4:
+                        if (map[enemyX, enemyY + 1] != '#') enemyY++;
+                        break;
                 }
 
                 if (map[userX, userY] == 'X')
@@ -277,12 +312,12 @@ namespace Game_Brodyaga
 
                 if (score == (countOfX))
                 {
-                    isOpen = false;
                     isWin = true;
+                    break;
                 }
                 else if (userHealth == 0)
                 {
-                    isOpen = false;
+                    break;
                     isWin = false;
                 }
 
