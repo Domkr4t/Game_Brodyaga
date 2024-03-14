@@ -8,13 +8,14 @@ namespace Game_Brodyaga
         static void Main(string[] args)
         {
             int mapNumber = 1, difficult = 1;
+
+            StartScreen();
             while (true)
             {
                 Game(mapNumber, difficult);
-
-                Console.WriteLine("\n\n1. Чтобы перезапустить игру нажмите R" +
-                    "\n2. Чтобы выбрать другой уровень нажмите S" +
-                    "\n3. Чтобы выбрать уровень сложности нажмите H" +
+                Console.WriteLine($"\n\n1. Чтобы перезапустить игру нажмите R" +
+                    $"\n2. Чтобы выбрать другой уровень нажмите S, сейчас выбрана карта №{mapNumber}" +
+                    $"\n3. Чтобы выбрать уровень сложности нажмите H, сейчас сложность: {difficult}" +
                     "\n4. Чтобы выйти из игры нажмите Esc!");
                 ConsoleKeyInfo key = Console.ReadKey();
                 if (key.Key == ConsoleKey.R)
@@ -337,6 +338,15 @@ namespace Game_Brodyaga
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("__  __   ____    __  __           __    ____    _____    ______\r\n\\ \\/ /  / __ \\  / / / /          / /   / __ \\  / ___/   / ____/\r\n \\  /  / / / / / / / /          / /   / / / /  \\__ \\   / __/   \r\n / /  / /_/ / / /_/ /          / /___/ /_/ /  ___/ /  / /___   \r\n/_/   \\____/  \\____/          /_____/\\____/  /____/  /_____/   \r\n                                                               ");
             }
+        }
+
+        public static void StartScreen()
+        {
+            Console.Write("   ______    ___     __  ___    ______           ____     ____    ____     ____ __  __    ___    ______    ___ \r\n  / ____/   /   |   /  |/  /   / ____/          / __ )   / __ \\  / __ \\   / __ \\\\ \\/ /   /   |  / ____/   /   |\r\n / / __    / /| |  / /|_/ /   / __/            / __  |  / /_/ / / / / /  / / / / \\  /   / /| | / / __    / /| |\r\n/ /_/ /   / ___ | / /  / /   / /___           / /_/ /  / _, _/ / /_/ /  / /_/ /  / /   / ___ |/ /_/ /   / ___ |\r\n\\____/   /_/  |_|/_/  /_/   /_____/          /_____/  /_/ |_|  \\____/  /_____/  /_/   /_/  |_|\\____/   /_/  |_|\r\n                                                                                                               \r\n");
+            Console.SetCursorPosition(0, 6);
+            Console.WriteLine("Чтобы начать игру нажмите любую клавишу!");
+            Console.ReadKey();
+            Console.Clear();
         }
     }
 }
