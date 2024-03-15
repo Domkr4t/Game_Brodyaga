@@ -12,20 +12,24 @@ namespace Game_Brodyaga
         private static CancellationTokenSource timerCancellationTokenSource;
         static void Main(string[] args)
         {
-            int mapNumber = 1, difficult = 1;
             Console.Title = "Бродилка";
             Console.CursorVisible = false;
             Console.WindowHeight = 30;
             Console.WindowWidth = 140;
+
+            int mapNumber = 1, difficult = 1;
+            char player = '@';
+            
             StartScreen();
             while (true)
             {
                 timerCancellationTokenSource = new CancellationTokenSource();
                 Task timerTask = StartTimer(timeOfGame, timerCancellationTokenSource.Token);
 
-                Game(mapNumber, difficult);
+                Game(player, mapNumber, difficult);
                 Console.WriteLine($"\n\n1. Чтобы перезапустить игру нажмите R" +
                     $"\n2. Чтобы изменить карту и сложность нажмите S, сейчас выбрана карта №{mapNumber} и сложность {difficult}" +
+                    $"\n3. Чтобы изменить иконку персонажа, нажмите P" +
                     "\n3. Чтобы выйти из игры нажмите Esc!");
                 ConsoleKeyInfo key = Console.ReadKey();
                 if (key.Key == ConsoleKey.R)
@@ -58,6 +62,25 @@ namespace Game_Brodyaga
                             break;
                     }
                     Console.ForegroundColor = ConsoleColor.White;
+                    Console.Clear();
+                }
+                else if (key.Key == ConsoleKey.P)
+                {
+                    Console.Clear();
+                    Console.Write("Введите символ, который будет отображаться персонажем (необходим один символ): ");
+                    try
+                    {
+                        player = Console.ReadLine()[0];
+                        if (player == ' ') player = '@';
+                    }
+                    catch 
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Вы ввели пустое значение!!! ");
+                        Console.ReadKey();
+                        Console.Clear();
+                        continue;
+                    }
                     Console.Clear();
                 }
             }
@@ -150,7 +173,7 @@ namespace Game_Brodyaga
             isTimeUp = true;
         }
 
-        public static bool Game(int mapNumber = 1, int difficult = 1)
+        public static bool Game(char player, int mapNumber = 1, int difficult = 1)
         {
             char[,] map = ReadMap($@"C:\Projects\Test\Test\bin\Debug\map{mapNumber}.txt");
 
@@ -250,7 +273,7 @@ namespace Game_Brodyaga
 
                 Console.SetCursorPosition(userY, userX + 5);
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write('@');
+                Console.Write(player);
                 Console.SetCursorPosition(enemyY, enemyX + 5);
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write('&');
