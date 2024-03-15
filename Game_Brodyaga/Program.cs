@@ -96,7 +96,7 @@ namespace Game_Brodyaga
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    map[i, j] = file[i][j];
+                    map[i, j] = file[j][i];
                 }
             }
 
@@ -381,6 +381,12 @@ namespace Game_Brodyaga
                     
                 }
                 else if (userHealth == 0 || isTimeUp)
+                {
+                    isWin = false;
+                    timerCancellationTokenSource.Cancel();
+                    break;
+                }
+                else if(userX == enemyX & userY == enemyY)
                 {
                     isWin = false;
                     timerCancellationTokenSource.Cancel();
