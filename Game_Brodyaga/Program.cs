@@ -13,7 +13,10 @@ namespace Game_Brodyaga
         static void Main(string[] args)
         {
             int mapNumber = 1, difficult = 1;
-
+            Console.Title = "Бродилка";
+            Console.CursorVisible = false;
+            Console.WindowHeight = 30;
+            Console.WindowWidth = 140;
             StartScreen();
             while (true)
             {
@@ -22,9 +25,8 @@ namespace Game_Brodyaga
 
                 Game(mapNumber, difficult);
                 Console.WriteLine($"\n\n1. Чтобы перезапустить игру нажмите R" +
-                    $"\n2. Чтобы выбрать другой уровень нажмите S, сейчас выбрана карта №{mapNumber}" +
-                    $"\n3. Чтобы выбрать уровень сложности нажмите H, сейчас сложность: {difficult}" +
-                    "\n4. Чтобы выйти из игры нажмите Esc!");
+                    $"\n2. Чтобы изменить карту и сложность нажмите S, сейчас выбрана карта №{mapNumber} и сложность {difficult}" +
+                    "\n3. Чтобы выйти из игры нажмите Esc!");
                 ConsoleKeyInfo key = Console.ReadKey();
                 if (key.Key == ConsoleKey.R)
                 {
@@ -36,15 +38,12 @@ namespace Game_Brodyaga
                 else if (key.Key == ConsoleKey.S)
                 {
                     Console.Clear();
-                    Console.Write("Введите номер уровня (от 1 до 2): ");
+                    Console.Write($"Только что вы играли на {mapNumber} карте\n" +
+                        $"Введите номер уровня (от 1 до 2): ");
                     mapNumber = Convert.ToInt32(Console.ReadLine());
-                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Clear();
-                }
-                else if (key.Key == ConsoleKey.H)
-                {
-                    Console.Clear();
-                    Console.Write("Введите сложность (от 1 до 3): ");
+                    Console.Write($"Только что вы играли с уровнем сложности {difficult}\n" +
+                        "Введите уровень сложности (от 1 до 3): ");
                     difficult = Convert.ToInt32(Console.ReadLine());
                     switch (difficult)
                     {
@@ -58,7 +57,6 @@ namespace Game_Brodyaga
                             timeOfGame = 20;
                             break;
                     }
-
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Clear();
                 }
@@ -124,7 +122,10 @@ namespace Game_Brodyaga
         {
             Console.Write("   ______    ___     __  ___    ______           ____     ____    ____     ____ __  __    ___    ______    ___ \r\n  / ____/   /   |   /  |/  /   / ____/          / __ )   / __ \\  / __ \\   / __ \\\\ \\/ /   /   |  / ____/   /   |\r\n / / __    / /| |  / /|_/ /   / __/            / __  |  / /_/ / / / / /  / / / / \\  /   / /| | / / __    / /| |\r\n/ /_/ /   / ___ | / /  / /   / /___           / /_/ /  / _, _/ / /_/ /  / /_/ /  / /   / ___ |/ /_/ /   / ___ |\r\n\\____/   /_/  |_|/_/  /_/   /_____/          /_____/  /_/ |_|  \\____/  /_____/  /_/   /_/  |_|\\____/   /_/  |_|\r\n                                                                                                               \r\n");
             Console.SetCursorPosition(0, 6);
-            Console.WriteLine("Чтобы начать игру нажмите любую клавишу!");
+            Console.WriteLine("Вы участвуете в игре вам необходимо собрать все клады (X) " +
+                "пройдя по лабиринту! У вас есть здоровье и мана, если здоровье опуститься ниже 0, " +
+                "то вы проиграете, с помощью маны можно ломать стены, кроме внешних, " +
+                "при этом ваше здоровье не падает. Удачи!");
             Console.ReadKey();
             Console.Clear();
         }
@@ -138,7 +139,7 @@ namespace Game_Brodyaga
                 {
                     break;
                 }
-                Console.SetCursorPosition(0, 4);
+                Console.SetCursorPosition(0, 3);
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.Write($"Оставшееся время: {seconds / 60}:{seconds % 60:D2}");
                 Console.ForegroundColor = ConsoleColor.White;
@@ -151,11 +152,6 @@ namespace Game_Brodyaga
 
         public static bool Game(int mapNumber = 1, int difficult = 1)
         {
-            Console.Title = "Бродилка";
-            Console.CursorVisible = false;
-            Console.WindowHeight = 30;
-            Console.WindowWidth = 140;
-
             char[,] map = ReadMap($@"C:\Projects\Test\Test\bin\Debug\map{mapNumber}.txt");
 
             Random rnd = new Random();
@@ -220,22 +216,19 @@ namespace Game_Brodyaga
 
             while (true)
             {
-                Console.SetCursorPosition(0, 0);
-                Console.WriteLine("Вы участвуете в игре вам необходимо собрать все клады (X) " +
-                "пройдя по лабиринту! У вас есть здоровье и мана, если здоровье опуститься ниже 0, " +
-                "то вы проиграете, с помощью маны можно ломать стены, кроме внешних, " +
-                "при этом ваше здоровье не падает. Удачи!");
+                Console.SetCursorPosition(0, 1);
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"Уровень № {mapNumber}");
                 Console.ForegroundColor = ConsoleColor.White;
+                Console.SetCursorPosition(0, 2);
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine($"Сложность № {difficult}");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.SetCursorPosition(0, 27);
-                DrawBar(score, countOfX, ConsoleColor.Yellow, "Количество собранных кладов");
                 Console.SetCursorPosition(0, 25);
-                DrawBar(userMana, startMana, ConsoleColor.Blue, "Ваша мана");
+                DrawBar(score, countOfX, ConsoleColor.Yellow, "Количество собранных кладов");
                 Console.SetCursorPosition(0, 23);
+                DrawBar(userMana, startMana, ConsoleColor.Blue, "Ваша мана");
+                Console.SetCursorPosition(0, 21);
                 DrawBar(userHealth, startHealth, ConsoleColor.Green, "Ваше здоровье");
 
                 Console.SetCursorPosition(0, 5);
