@@ -1,10 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Game_Brodyaga
 {
     internal class Program
     {
+        private static bool isTimeUp = false;
+        public static int timeOfGame = 50;
+        private static CancellationTokenSource timerCancellationTokenSource;
         static void Main(string[] args)
         {
             int mapNumber = 1, difficult = 1;
@@ -12,6 +17,9 @@ namespace Game_Brodyaga
             StartScreen();
             while (true)
             {
+                timerCancellationTokenSource = new CancellationTokenSource();
+                Task timerTask = StartTimer(timeOfGame, timerCancellationTokenSource.Token);
+
                 Game(mapNumber, difficult);
                 Console.WriteLine($"\n\n1. Чтобы перезапустить игру нажмите R" +
                     $"\n2. Чтобы выбрать другой уровень нажмите S, сейчас выбрана карта №{mapNumber}" +
@@ -38,11 +46,23 @@ namespace Game_Brodyaga
                     Console.Clear();
                     Console.Write("Введите сложность (от 1 до 3): ");
                     difficult = Convert.ToInt32(Console.ReadLine());
+                    switch (difficult)
+                    {
+                        case 1:
+                            timeOfGame = 50;
+                            break;
+                        case 2:
+                            timeOfGame = 30;
+                            break;
+                        case 3:
+                            timeOfGame = 20;
+                            break;
+                    }
+
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Clear();
                 }
             }
-
         }
 
         private static char[,] ReadMap(string path)
@@ -100,7 +120,36 @@ namespace Game_Brodyaga
 
         }
 
-        public static void Game(int mapNumber = 1, int difficult = 1)
+        public static void StartScreen()
+        {
+            Console.Write("   ______    ___     __  ___    ______           ____     ____    ____     ____ __  __    ___    ______    ___ \r\n  / ____/   /   |   /  |/  /   / ____/          / __ )   / __ \\  / __ \\   / __ \\\\ \\/ /   /   |  / ____/   /   |\r\n / / __    / /| |  / /|_/ /   / __/            / __  |  / /_/ / / / / /  / / / / \\  /   / /| | / / __    / /| |\r\n/ /_/ /   / ___ | / /  / /   / /___           / /_/ /  / _, _/ / /_/ /  / /_/ /  / /   / ___ |/ /_/ /   / ___ |\r\n\\____/   /_/  |_|/_/  /_/   /_____/          /_____/  /_/ |_|  \\____/  /_____/  /_/   /_/  |_|\\____/   /_/  |_|\r\n                                                                                                               \r\n");
+            Console.SetCursorPosition(0, 6);
+            Console.WriteLine("Чтобы начать игру нажмите любую клавишу!");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        public static async Task StartTimer(int seconds, CancellationToken cancellationToken)
+        {
+
+            while (seconds > 0)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                Console.SetCursorPosition(0, 4);
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.Write($"Оставшееся время: {seconds / 60}:{seconds % 60:D2}");
+                Console.ForegroundColor = ConsoleColor.White;
+                await Task.Delay(1000, cancellationToken);
+                seconds--;
+            }
+
+            isTimeUp = true;
+        }
+
+        public static bool Game(int mapNumber = 1, int difficult = 1)
         {
             Console.Title = "Бродилка";
             Console.CursorVisible = false;
@@ -113,17 +162,17 @@ namespace Game_Brodyaga
 
             int userX = 0, 
                 userY = 0,
-                enemyX = 0,
-                enemyY = 0,
-                score = 0, 
-                countOfX = rnd.Next(1, 11),
                 startHealth = 3,
                 userHealth = 0,
                 startMana = 2,
                 userMana = 0,
-                moveEnemy = 0;
+                enemyX = 0,
+                enemyY = 0,
+                moveEnemy,
+                score = 0, 
+                countOfX = rnd.Next(1, 11);
 
-            bool isWin = true;
+            bool isWin;
 
             switch (difficult)
             {
@@ -168,8 +217,6 @@ namespace Game_Brodyaga
                 enemyX = rnd.Next(1, map.GetLength(0));
                 enemyY = rnd.Next(1, map.GetLength(1));
             }
-
-            
 
             while (true)
             {
@@ -308,18 +355,20 @@ namespace Game_Brodyaga
                 {
                     score++;
                     map[userX, userY] = 'O';
-
                 }
 
                 if (score == (countOfX))
                 {
                     isWin = true;
+                    timerCancellationTokenSource.Cancel();
                     break;
+                    
                 }
-                else if (userHealth == 0)
+                else if (userHealth == 0 || isTimeUp)
                 {
-                    break;
                     isWin = false;
+                    timerCancellationTokenSource.Cancel();
+                    break;
                 }
 
 
@@ -338,16 +387,10 @@ namespace Game_Brodyaga
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("__  __   ____    __  __           __    ____    _____    ______\r\n\\ \\/ /  / __ \\  / / / /          / /   / __ \\  / ___/   / ____/\r\n \\  /  / / / / / / / /          / /   / / / /  \\__ \\   / __/   \r\n / /  / /_/ / / /_/ /          / /___/ /_/ /  ___/ /  / /___   \r\n/_/   \\____/  \\____/          /_____/\\____/  /____/  /_____/   \r\n                                                               ");
             }
+
+            return isWin;
         }
 
-        public static void StartScreen()
-        {
-            Console.Write("   ______    ___     __  ___    ______           ____     ____    ____     ____ __  __    ___    ______    ___ \r\n  / ____/   /   |   /  |/  /   / ____/          / __ )   / __ \\  / __ \\   / __ \\\\ \\/ /   /   |  / ____/   /   |\r\n / / __    / /| |  / /|_/ /   / __/            / __  |  / /_/ / / / / /  / / / / \\  /   / /| | / / __    / /| |\r\n/ /_/ /   / ___ | / /  / /   / /___           / /_/ /  / _, _/ / /_/ /  / /_/ /  / /   / ___ |/ /_/ /   / ___ |\r\n\\____/   /_/  |_|/_/  /_/   /_____/          /_____/  /_/ |_|  \\____/  /_____/  /_/   /_/  |_|\\____/   /_/  |_|\r\n                                                                                                               \r\n");
-            Console.SetCursorPosition(0, 6);
-            Console.WriteLine("Чтобы начать игру нажмите любую клавишу!");
-            Console.ReadKey();
-            Console.Clear();
-        }
     }
 }
 
